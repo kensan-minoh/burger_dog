@@ -23,6 +23,8 @@ shiba_rect = shiba_image.get_rect(midbottom=(WINDOW_WIDTH//2, WINDOW_HEIGHT))
 burger_image = pygame.image.load("burger.png").convert_alpha()
 burger_image = pygame.transform.scale(burger_image, (48, 48))
 burger_rect = burger_image.get_rect(bottomleft=(random.randint(0,WINDOW_WIDTH-48),10))
+burger_hit_rect = burger_rect.inflate(-10, -10)
+print(f"burger_rect: {burger_rect} burger_hit_rect: {burger_hit_rect}")
 
 burger_points = 0
 score = 0
@@ -45,6 +47,7 @@ title_text = game_font.render(f"Burger Dog", True, 'green')
 title_rect = title_text.get_rect(midtop=(WINDOW_WIDTH//2, 10))
 burgers_eaten_text = game_font.render(f"Burgers Eaten: {burgers_eaten}", True, 'orange')
 burgers_eaten_rect = burgers_eaten_text.get_rect(midtop=(WINDOW_WIDTH//2, 45))
+
 lives_text = game_font.render(f"Lives: {lives}", True, 'orange')
 lives_rect = lives_text.get_rect(topright=(WINDOW_WIDTH-5, 10))
 boost_text = game_font.render(f"Boost: {boost}", True, 'orange')
@@ -90,6 +93,7 @@ while running:
 
     # burger's movement
     burger_rect.y += burger_speed
+    burger_hit_rect.center = burger_rect.center
 
     # shiba misses a burger
     if burger_rect.top > WINDOW_HEIGHT:
@@ -98,7 +102,7 @@ while running:
         burger_rect.bottom = -10
     
     # shiba catches a burger
-    if shiba_rect.colliderect(burger_rect):
+    if shiba_rect.colliderect(burger_hit_rect):
         hit_sound.play()
         
         score += 1
@@ -123,6 +127,8 @@ while running:
     display_surface.blit(burgers_eaten_text, burgers_eaten_rect)
     display_surface.blit(lives_text, lives_rect)
     display_surface.blit(boost_text, boost_rect)
+
+    pygame.draw.rect(display_surface,'red', burger_hit_rect, width=1)
     pygame.display.update()
 
     clock.tick(FPS)
