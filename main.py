@@ -18,6 +18,7 @@ shiba_right = pygame.transform.flip(shiba_left, True, False)
 shiba_image = random.choice([shiba_right, shiba_left])
 shiba_image = shiba_right
 shiba_rect = shiba_image.get_rect(midbottom=(WINDOW_WIDTH//2, WINDOW_HEIGHT))
+shiba_hit_rect = shiba_rect.scale_by(0.8)
 
 
 burger_image = pygame.image.load("burger.png").convert_alpha()
@@ -91,6 +92,9 @@ while running:
     if keys[pygame.K_UP] and shiba_rect.top > HUD_LINE:
         shiba_rect.y += -shiba_speed
 
+
+    shiba_hit_rect.center = shiba_rect.center
+
     # burger's movement
     burger_rect.y += burger_speed
     burger_hit_rect.center = burger_rect.center
@@ -102,7 +106,7 @@ while running:
         burger_rect.bottom = -10
     
     # shiba catches a burger
-    if shiba_rect.colliderect(burger_hit_rect):
+    if shiba_hit_rect.colliderect(burger_hit_rect):
         hit_sound.play()
         
         score += 1
@@ -128,7 +132,7 @@ while running:
     display_surface.blit(lives_text, lives_rect)
     display_surface.blit(boost_text, boost_rect)
 
-    pygame.draw.rect(display_surface,'red', burger_hit_rect, width=1)
+    #pygame.draw.rect(display_surface,'red', shiba_hit_rect, width=1)
     pygame.display.update()
 
     clock.tick(FPS)
