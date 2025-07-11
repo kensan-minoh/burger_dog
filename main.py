@@ -8,6 +8,7 @@ pygame.init()
 WINDOW_WIDTH = 600
 WINDOW_HEIGHT = 400
 HUD_LINE = 80
+BUFER_DISTANCE = 100
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Burger Dog")
 
@@ -16,26 +17,20 @@ shiba_left = pygame.image.load("shiba.png").convert_alpha()
 #shiba_right = pygame.transform.scale(shiba_right, (48, 48))
 shiba_right = pygame.transform.flip(shiba_left, True, False)
 shiba_image = random.choice([shiba_right, shiba_left])
-shiba_image = shiba_right
 shiba_rect = shiba_image.get_rect(midbottom=(WINDOW_WIDTH//2, WINDOW_HEIGHT))
 shiba_hit_rect = shiba_rect.scale_by(0.8)
 
-
 burger_image = pygame.image.load("burger.png").convert_alpha()
 burger_image = pygame.transform.scale(burger_image, (48, 48))
-burger_rect = burger_image.get_rect(bottomleft=(random.randint(0,WINDOW_WIDTH-48),10))
+burger_rect = burger_image.get_rect(bottomleft=(random.randint(0,WINDOW_WIDTH-48),-BUFER_DISTANCE))
 burger_hit_rect = burger_rect.inflate(-10, -10)
 print(f"burger_rect: {burger_rect} burger_hit_rect: {burger_hit_rect}")
 
-
 PLAYER_STARTING_LIVES = 5
-
 PLAYER_NORMAL_VELOCITY = 5
-
 PLAYER_BOOST_VELOCITY = 10
 STARTING_BOOST_LEVEL = 100
 STARTING_BURGER_VELOCITY = 3
-
 BURGER_ACCELRATION = 0.25
 
 burger_points = 0
@@ -97,6 +92,14 @@ while running:
     # shiba's movement
     keys = pygame.key.get_pressed()
 
+    if keys[pygame.K_SPACE] and boost_level > 0:
+        shiba_velocity = PLAYER_BOOST_VELOCITY
+        boost_level -= 1
+        if boost_level <= 0:
+            boost_level = 0
+    else:
+        shiba_velocity =  PLAYER_NORMAL_VELOCITY
+
     if keys[pygame.K_RIGHT] and shiba_rect.right < WINDOW_WIDTH:
         shiba_image = shiba_right
         shiba_rect.x += shiba_velocity
@@ -126,7 +129,9 @@ while running:
     # shiba catches a burger
     if shiba_hit_rect.colliderect(burger_hit_rect):
         hit_sound.play()
-        
+        boost_level += 20
+        if boost_level >= 100:
+            boost_level = 100
         score += 1
         burger_rect.left = random.randint(0, WINDOW_WIDTH-48)
         burger_rect.bottom = -10
@@ -139,6 +144,7 @@ while running:
     # inside hud
     score_text = game_font.render(f"Score: {score}", True, 'orange')
     lives_text = game_font.render(f"Lives: {lives}", True, 'orange')
+    boost_text = game_font.render(f"Boost: {boost_level}", True, 'orange')
 
     # blit the assetes
     display_surface.blit(shiba_image, shiba_rect)
@@ -174,7 +180,11 @@ while running:
                 lives = PLAYER_STARTING_LIVES
                 score = 0
                 burgers_eaten = 0
+                boost_level = STARTING_BOOST_LEVEL
                 pygame.mixer.music.play(loops=-1, start=0.0)
+                shiba_image = random.choice([shiba_right, shiba_left])
+                shiba_rect.midbottom = (WINDOW_WIDTH//2, WINDOW_HEIGHT)
+                shiba_hit_rect.center = shiba_rect.center
 
 
     clock.tick(FPS)
